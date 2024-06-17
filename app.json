@@ -1,0 +1,16 @@
+{
+  "Baidu": {
+    "ApiAddress": "http://api.fanyi.baidu.com/api/trans/vip/translate",
+    "AppId": "your app id",
+    "Key": "your key",
+    "MonthMax": 500000
+  },
+  "Google": {
+    "apiAddress": "",
+    "appId": "11",
+    "key": "",
+    "MonthMax": 5000000
+  },
+  "DefaultLangs": "zh-Hans,en",
+  "TransIgnoreList": "lang"
+}
