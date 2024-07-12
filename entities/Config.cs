@@ -17,6 +17,23 @@ namespace translator.entities
         /// 忽略翻译的属性列表
         /// </summary>
         public string TransIgnoreList { get; set; }
+
+        public string AppDataPath
+        {
+            get
+            {
+                string dir = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "fair.translator");
+                return dir;
+            }
+        }
+
+        public Config()
+        {
+            if (!Directory.Exists(AppDataPath))
+            {
+                Directory.CreateDirectory(AppDataPath);
+            }
+        }
     }
 
     public struct TransConfig

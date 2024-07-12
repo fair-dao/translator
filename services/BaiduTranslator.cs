@@ -19,7 +19,7 @@ namespace translator.services
 
         int curMonth = 0;
         public override string Name => "百度翻译";
-        public BaiduTranslator(Config config,Helper helper):base(config.Baidu,helper)
+        public BaiduTranslator(Config config,Helper helper):base(config,config.Baidu,helper)
         {
         
             this.lastTransTime = DateTime.Now;
@@ -61,11 +61,10 @@ namespace translator.services
         protected override string ToTans(string src,string des,string text)
         {          
             string salt= System.DateTime.Now.Millisecond.ToString();
-            string str = $"{this.config.AppId}{text}{salt}{this.config.Key}";
-            string md5 = this.helper.GetMD5(str);
-
+            string str = $"{this._TransConfig.AppId}{text}{salt}{this._TransConfig.Key}";
+            string md5 = this._Helper.GetMD5(str);
             string t2 = HttpUtility.UrlEncode(text, Encoding.UTF8);
-            string address = $"{this.config.ApiAddress}?q={t2}&from={src}&to={des}&appid={this.config.AppId}&salt={salt}&sign={md5}";
+            string address = $"{this._TransConfig.ApiAddress}?q={t2}&from={src}&to={des}&appid={this._TransConfig.AppId}&salt={salt}&sign={md5}";
  
                 lock (lockObj) //保证每秒只调用一次
                 {

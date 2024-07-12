@@ -6,6 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using translator.entities;
 
 namespace translator
@@ -56,6 +57,19 @@ namespace translator
             }
 
             return txt;
+        }
+
+        public string GetSHA256(string txt)
+        {
+            byte[] datas = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(txt));
+            StringBuilder sb = new StringBuilder();
+            foreach (byte b in datas)
+            {
+                sb.Append(b.ToString("X2"));
+            }
+            string sha = sb.ToString();
+            return sb.ToString();
+
         }
 
         /// <summary>

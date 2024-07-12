@@ -18,7 +18,7 @@ namespace translator.services
 
         public override string Name => "Google翻译";
 
-        public GoogleTranslator(Config config, Helper helper) : base(config.Google, helper)
+        public GoogleTranslator(Config config, Helper helper) : base(config, config.Google, helper)
         {
             this.config = config;
             LangMap.Add("zh-CN", "zh");

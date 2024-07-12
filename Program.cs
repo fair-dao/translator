@@ -29,6 +29,7 @@ namespace translator
             {
                 c= new Config();    
             }
+
             services.AddSingleton<Helper>();
             services.AddSingleton<Config>(c);
             services.AddSingleton<BaiduTranslator>();

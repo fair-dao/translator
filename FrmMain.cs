@@ -21,6 +21,8 @@ namespace translator
 
         private Translator translator;
         List<string>? transIgnoreList;
+
+
         public FrmMain(BaiduTranslator baiduTranslator, GoogleTranslator googleTranslator, Helper helper, Config config)
         {
 
@@ -31,6 +33,7 @@ namespace translator
             this.cbTransTools.Items.Add(googleTranslator);
             this.cbTransTools.SelectedIndex = 0;
             transIgnoreList = config.TransIgnoreList?.Split(',').ToList();
+
         }
 
         record LangFile(string FileName, string FilePath)
@@ -191,7 +194,9 @@ namespace translator
                 {
                     files.Add((item as LangFile).FilePath);
                 }
-            }else  {
+            }
+            else
+            {
                 string srcDir = Path.GetDirectoryName(this.helper.CurProject.ProjectFullPath);
                 DirectoryInfo d = new DirectoryInfo(Path.Combine(srcDir, this.helper.CurProject.SrcLang));
 
@@ -220,8 +225,7 @@ namespace translator
                     TransFile(file);
 
                 }
-                //写入使用的翻译额度
-                this.translator.SaveCharsTotal();
+             
                 this.helper.SaveProcject();
                 WriteMsg($"翻译完成，共翻译了{this.translator.TransChars}个字符");
 
@@ -230,6 +234,8 @@ namespace translator
             {
                 WriteMsg($"翻译中断:{dis.Message}");
             }
+            //写入使用的翻译额度
+            this.translator.SaveCharsTotal();
             this.Invoke(() =>
             {
                 this.btnTransAllFile.Text = "翻译所有文件";
@@ -271,7 +277,7 @@ namespace translator
                     using var writer = new Utf8JsonWriter(ms, options: new JsonWriterOptions
                     {
                         Indented = true,
-                        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping // 使用不安全的编码器
+                        Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
                     });
                     TransEnv env = new TransEnv(targetLang.Name, langPath, writer);
                     ProcessElementValue(env, new JsonElementInfo { Element = srcDocument.RootElement, path = "" }
@@ -313,22 +319,34 @@ namespace translator
                 case JsonValueKind.String: //需要翻译的值 
                     string srcValue = src.Element.GetString();
                     string newVal = target?.GetString();
-                    bool? changed = helper.CheckVerChanged(env, src.path, newVal, srcValue);
+                    string srcVal = srcValue.Trim();
+                    bool? changed = helper.CheckVerChanged(env, src.path, newVal, srcVal);
+
                     if (changed == true)
                     {
                         try
                         {
+                            //在本地翻译库中查找
                             //  newVal = googleTranslator.Tans(this.helper.CurProject.SrcLang, targetLang, src.GetString()) ?? "";
                             // if (string.IsNullOrWhiteSpace(newVal)) {
-                            newVal = this.translator.Tans(this.helper.CurProject.SrcLang, targetLang, srcValue) ?? "";
+                            newVal = this.translator.Tans(this.helper.CurProject.SrcLang, targetLang, srcVal) ?? "";
                             // }
-                            helper.AddVer(env, src.path, newVal, srcValue);
+                            helper.AddVer(env, src.path, newVal, srcVal);
                         }
                         catch (exs.DisTransException dis) { throw dis; }
                         catch (Exception e)
                         {
 
 
+                        }
+                    }
+                    else
+                    {
+
+                        string key = $"{this.helper.CurProject.SrcLang}-{targetLang}-{srcVal}";
+                        string sha = this.helper.GetSHA256(key);
+                        {
+                            this.translator.WriteLocalData(sha, this.helper.CurProject.SrcLang, targetLang,srcValue , newVal);
                         }
                     }
                     env.JsonWriter.WriteStringValue(newVal);
@@ -376,8 +394,12 @@ namespace translator
                 string propertyName = property.Name;
                 if (!string.IsNullOrEmpty(propertyName))
                 {
-
                     env.JsonWriter.WritePropertyName(propertyName);
+                    if (propertyName.StartsWith("_")) //不需要翻译的字段
+                    {
+                        property.Value.WriteTo(env.JsonWriter);
+                        continue;
+                    }
                 }
                 JsonElement? e = null;
                 try
@@ -419,7 +441,7 @@ namespace translator
                     if (this.btnTransAllFile.Enabled) this.btnTransAllFile.Text = "翻译所有文件";
                 }
             }
-                this.rtbSrc.Text = "";
+            this.rtbSrc.Text = "";
             if (clbFiles.SelectedItem is LangFile file)
             {
                 this.rtbSrc.Text = File.ReadAllText(file.FilePath, Encoding.UTF8);
