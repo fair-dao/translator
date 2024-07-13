@@ -172,9 +172,9 @@ namespace translator
         public void AddVer(TransEnv env, string jsonPath, string dstText,string srcText)
         {
             if (string.IsNullOrEmpty(srcText) || string.IsNullOrEmpty(dstText)) return;
-            string key = GetMD5(jsonPath);
-            string val = GetMD5(srcText).Substring(0,4);
-            string des = GetMD5(dstText).Substring(0, 4);
+            string key = GetMD5($"{jsonPath}{srcText}");
+            string val = GetMD5(srcText);
+            string des = GetMD5(dstText);
             VerData.VerPairs[key]=new VerItem() { DstLang=env.dstLang, DstVer= des, SrcVer=val };
 
         }
@@ -189,11 +189,11 @@ namespace translator
         {    
             if (string.IsNullOrWhiteSpace(srcText)) return false;
             if (string.IsNullOrEmpty(dstText)) return true;
-            string key = GetMD5(jsonPath);
+            string key = GetMD5($"{jsonPath}{srcText}");
             VerItem val;
             if (VerData.VerPairs.TryGetValue(key, out val))
             {
-                string desVal = GetMD5(dstText).Substring(0, 4);
+                string desVal = GetMD5(dstText);
                 if (desVal != val.DstVer) //已手动更新
                 {
                     //目标版本手动更新了
@@ -201,7 +201,7 @@ namespace translator
                     VerData.VerPairs.Remove(key);
                     return false;
                 }
-                string oldVal = GetMD5(srcText).Substring(0, 4);
+                string oldVal = GetMD5(srcText);
                 if (oldVal == val.SrcVer) return false;
                 else
                 {
@@ -212,7 +212,7 @@ namespace translator
             }
             else
             {
-                if (VerData.WarnPairs.ContainsKey(key)) return false;
+                //if (VerData.WarnPairs.ContainsKey(key)) return false;
                 return true;
             }
 

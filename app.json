@@ -1,8 +1,8 @@
 {
   "Baidu": {
     "ApiAddress": "http://api.fanyi.baidu.com/api/trans/vip/translate",
-    "AppId": "20221107001440780",
-    "Key": "5XVHFDrXfCP9qkdsZFbY",
+    "AppId": "your appId",
+    "Key": "your key",
     "MonthMax": 50000
   },
   "Google": {

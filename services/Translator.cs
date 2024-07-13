@@ -33,7 +33,7 @@ namespace translator.services
             this._TransConfig = transConfig;
             this._Helper = helper;
             string key = helper.GetMD5($"{transConfig.AppId}{transConfig.Key}").Substring(0, 6);
-            totalFile = Path.Combine(AppContext.BaseDirectory, $"{key}.total.txt");
+            totalFile = Path.Combine(this._Config.AppDataPath, $"{key}.total.txt");
             localTransDataFile = Path.Combine(this._Config.AppDataPath, "localtrans.json");
             if (File.Exists(totalFile))
             {

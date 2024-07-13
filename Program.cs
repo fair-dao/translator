@@ -20,7 +20,17 @@ namespace translator
             //创建服务容器
             var services = new ServiceCollection();
             services.AddSingleton<FrmMain>();
-            string configPath = Path.Combine(AppContext.BaseDirectory,"app.json");
+            string configPath = Path.Combine(System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "fair.translator");
+            if (!Directory.Exists(configPath))
+            {
+                Directory.CreateDirectory(configPath);
+            }
+            configPath = Path.Combine(configPath, "app.json");
+            if (!File.Exists(configPath))
+            {
+                File.Copy(Path.Combine(AppContext.BaseDirectory, "app.json"),configPath);
+            }
+            
             Config c = null;
             if (File.Exists(configPath)){
                string data= File.ReadAllText(configPath, Encoding.UTF8);
