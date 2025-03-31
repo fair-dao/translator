@@ -61,6 +61,7 @@ namespace translator
                 }
             }
             helper.CurProject.ProjectName = this.txtProjectName.Text.Trim();
+            helper.CurProject.SrcLang= this.txtSrcLang.Text.Trim();
             helper.SaveProcject();
             this.Close();
         }

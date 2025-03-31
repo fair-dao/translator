@@ -28,6 +28,7 @@ namespace translator.services
             LangMap.Add("my", "bur");//缅甸语
             LangMap.Add("km-KH", "hkm");//柬埔寨
             LangMap.Add("zh-CN", "zh"); //中国
+            LangMap.Add("zh-Hans", "zh"); //中国
             LangMap.Add("en-", "en"); //英语
             LangMap.Add("fr-", "fra"); //法语
             LangMap.Add("ru-", "ru"); //俄语
@@ -59,12 +60,23 @@ namespace translator.services
         /// <param name="text"></param>
         /// <returns></returns>
         protected override string ToTans(string src,string des,string text)
-        {          
+        {
+            string baiduSrc = src;
+            if (LangMap.ContainsKey(src))
+            {
+                baiduSrc = LangMap[src];
+            }
+            string baiduDes = des;
+            if (LangMap.ContainsKey(des))
+            {
+                baiduDes = LangMap[des];
+            }
+            if (baiduSrc == baiduDes) return text;
             string salt= System.DateTime.Now.Millisecond.ToString();
             string str = $"{this._TransConfig.AppId}{text}{salt}{this._TransConfig.Key}";
             string md5 = this._Helper.GetMD5(str);
             string t2 = HttpUtility.UrlEncode(text, Encoding.UTF8);
-            string address = $"{this._TransConfig.ApiAddress}?q={t2}&from={src}&to={des}&appid={this._TransConfig.AppId}&salt={salt}&sign={md5}";
+            string address = $"{this._TransConfig.ApiAddress}?q={t2}&from={baiduSrc}&to={baiduDes}&appid={this._TransConfig.AppId}&salt={salt}&sign={md5}";
  
                 lock (lockObj) //保证每秒只调用一次
                 {
@@ -83,10 +95,10 @@ namespace translator.services
                     {
                         if(result.error_code== "58001") //不能转换的语种
                         {
-                            throw new exs.DisTransException($"from:{src},to:{des},txt:{text}, {result.error_msg}");
+                            throw new exs.DisTransException($"from:{baiduSrc},to:{baiduDes},txt:{text}, {result.error_msg}");
 
                         }
-                        throw new Exception($"百度翻译出错:{src},{des},{text},错误代码:{result.error_code}");
+                        throw new Exception($"百度翻译出错:{baiduSrc},{baiduDes},{text},错误代码:{result.error_code},error msg:{result.error_msg}, appId:{this._TransConfig.AppId}");
                     }
                    
                     if (result.trans_result.Length>0 )

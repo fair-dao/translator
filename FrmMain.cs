@@ -218,12 +218,13 @@ namespace translator
 
         void TransTask(List<string> files)
         {
+            WriteMsg("开始翻译...");
             try
             {
                 foreach (string file in files)
                 {
+                    WriteMsg2($"正在翻译{file}...");
                     TransFile(file);
-
                 }
              
                 this.helper.SaveProcject();
@@ -333,10 +334,13 @@ namespace translator
                             // }
                             helper.AddVer(env, src.path, newVal, srcVal);
                         }
-                        catch (exs.DisTransException dis) { throw dis; }
+                        catch (exs.DisTransException dis) {
+
+                            WriteMsg2(dis.Message);
+                            throw dis; }
                         catch (Exception e)
                         {
-
+                            WriteMsg2(e.Message);
 
                         }
                     }
@@ -355,6 +359,18 @@ namespace translator
                     src.Element.WriteTo(env.JsonWriter);
                     break;
             }
+        }
+
+        void WriteMsg2(string msg)
+        {
+
+            this.Invoke(() =>
+            {
+                this.rtbMessage.AppendText(msg+System.Environment.NewLine);
+                
+
+            });
+
         }
 
         void ProcessArrayElement(TransEnv env, JsonElementInfo src, JsonElement? target, string targetLang)

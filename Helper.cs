@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -232,6 +233,7 @@ namespace translator
             if (CurProject?.ProjectFullPath != null)
             {
                 File.WriteAllText(CurProject.ProjectFullPath, System.Text.Json.JsonSerializer.Serialize(CurProject, JsonSerializerOptions));
+                projectVerFile = $"{CurProject?.ProjectFullPath}.ver";
                 File.WriteAllText(projectVerFile, System.Text.Json.JsonSerializer.Serialize(VerData, JsonSerializerOptions));
             }
 
